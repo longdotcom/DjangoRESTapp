@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+        body {
+            background-color: #FFF;
+        }
+        table {
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid grey;
+            text-align: left;
+        }
+
+    </style>
+
+    <link rel="shortcut icon" href="http://d1ujqdpfgkvqfi.cloudfront.net/favicon-generator/htdocs/favicons/2015-02-02/dc2664b0867406fe3f23ea3523a744d0.ico">
+
+    <title>Product list</title>
+  </head>
+
+<body>
+
+
+  <div id = "addproduct">
+    <p><b>Add product:</b></p>
+
+      <form>
+        {% csrf_token %}
+        Name:<br>
+        <input id="addname" type="text" name="name"><br>
+        Description:<br>
+        <input id="adddescriptiom" type="text" name="description"><br>
+        Price:<br>
+        <input id="addprice" type="number" name="price" step ="any"><br>
+        <input id="addbutton" type="button" value="Add Product">
+      </form>
+  </div>
+
+
+
+  <div id = "updateproduct">
+    <p><b>Update product:</b></p>
+
+      <form>
+        {% csrf_token %}
+        ID:<br>
+        <input id="updateid" type="number" name="existingname"><br>
+        New Name:<br>
+        <input id="updateName"type="text" name="newname"><br>
+        New description:<br>
+        <input id="updateDescription" type="text" name="newdescription"><br>
+        New Price:<br>
+        <input id="updatePrice" type="number" name="newprice" step="any"><br>
+
+        <input id="updatebutton" type="button" value="Update Product">
+      </form>
+  </div>
+<p>
+
+
+
+  <div id = "deleteproduct">
+    <p><b>Delete product:</b></p>
+
+      <form>
+        {% csrf_token %}
+        ID:<br>
+        <input id="deleteID" type="text" name="deleteID"><br>
+        <input id="deletebutton" type="button" value="Delete Product">
+      </form><p>
+  </div>
+
+
+
+
+  <table id="thetable" style="width:70%">
+   <tr>
+     <th>ID</th>
+     <th>Name</th>
+     <th>Description</th>
+     <th>Price</th>
+   </tr>
+
+
+  </table>
+
+<div id = "newtable">
+
+
+
+</div>
+
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+
+<!-- INITIAL GET FROM DB SCRIPT -->
+    <script>
+    $(function() {
+
+      $.ajax({
+        url: '/get/',
+        type: 'GET',
+        dataType: 'json',
+
+        <!-- ITERATE AND PRINT ALL VALUES IN TABLE-->
+        success: function (data) {
+                for(var i=0; i<data.products.length;i++){
+                $("#thetable").append("<tr id =" + data.products[i].id + " > <td>" + data.products[i].id + "</td>" + "<td>" + data.products[i].name + "</td>"  + "<td>" + data.products[i].description + "</td>"  + "<td>" + data.products[i].price + "</td></tr>")
+
+              }
+            }
+      });
+    });
+  </script>
+
+
+
+<!-- ADD TO DB SCRIPT -->
+    <script>
+    $("#addbutton").click(function () {
+
+      var addName = $("#addname").val();
+      var addDescription = $("#adddescriptiom").val();
+      var addPrice = $("#addprice").val();
+
+      $.ajax({
+        url: '/add/',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+          'name': addName,
+          'description' : addDescription,
+          'price' : addPrice,
+        },
+
+        <!-- APPEND ONE ADDED VALUE TO EXISTING TABLE-->
+        success: function (data) {
+          var id = data['id']
+          $("#thetable").append("<tr id =" + id +"> <td>" + data['id'] + "</td>" + "<td>" + data['name'] + "</td>"  + "<td>" + data['description'] + "</td>"  + "<td>" + data['price'] + "</td></tr>")
+
+        }
+
+      });
+    });
+  </script>
+
+
+
+
+  <!-- UPDATE DB SCRIPT -->
+  <script>
+  $("#updatebutton").click(function () {
+    var existingID = $("#updateid").val();
+    var updateName = $("#updateName").val();
+    var updateDescription = $("#updateDescription").val();
+    var updatePrice = $("#updatePrice").val();
+
+    $.ajax({
+      url: '/update/',
+      type: 'PUT',
+      dataType: 'json',
+      data: {
+        'id' : existingID,
+        'name': updateName,
+        'description' : updateDescription,
+        'price' : updatePrice,
+      },
+
+      success: function (data) {
+        var id = data['id']
+
+        document.getElementById(id).innerHTML = "<td>" + data['id'] + "</td>" + "<td>" + data['name'] + "</td>"  + "<td>" + data['description'] + "</td>"  + "<td>" + data['price'] + "</td>"
+
+      }
+
+    });
+  });
+</script>
+
+
+
+<!-- DELETE DB SCRIPT -->
+<script>
+$("#deletebutton").click(function () {
+  var deleteID = $("#deleteID").val();
+
+
+  $.ajax({
+    url: '/delete/',
+    type: 'DELETE',
+    dataType: 'json',
+    data: {
+      'id':deleteID,
+    },
+
+    success: function (data) {
+
+      var id = data['id']
+
+      var e = document.getElementById(id)
+      e.remove()
+    }
+
+  });
+});
+</script>
+
+
+
+
+
+
+</body>
+
+</html>
